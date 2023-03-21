@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8">
+    <title>Polygon Lottery</title>
+    <meta name="description" content="You can enter and earn rewards using crypto (Polygon MATIC)">
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.6.0/dist/web3.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="shortcut icon" type="image/vnd.microsoft.icon" href="/favicon.ico">
+  </head>
+  <body class = "start">
+    <noscript>
+      <div style="font-size: 18px; line-height: 24px; margin: 10%; width: 80%;">
+          <p>JavaScript is disabled in your browser</p>
+          <p style="margin: 20px 0;">
+              <button type="submit" style="background-color: #def2ff; border-radius: 100px; border: none; box-shadow: none; color: #fff; cursor: pointer; font-size: 14px; font-weight: bold; line-height: 20px; padding: 6px 16px;">Yes</button>
+          </p>
+      </div>
+    </noscript>
+
+    <div id="overlay">
+        <div id="alert-box">
+            <div id = "no-metamask">
+                <p>MetaMask is not Installed.<br>MetaMask is necessary to use this site.<br><br>Please download Metamask at <br><a href = "https://metamask.io/">https://metamask.io/</a></p>
+            </div>
+            <div id="connect-box">
+                <p>You need to connect MetaMask to use this site.<br></p>
+                <button type="button" class = "button" onclick="getAccount()">Connect Metamask</button>
+            </div>
+        </div>
+    </div>
+      
+
+    <h1>Polygon Lottery</h1>
+
+    <div id="play-buttons">
+        <h2>S (Win 25 MATIC)</h2>
+        <div class = "play-type">
+            <input id="s-slider" class="slider" type="range" min="1" max="24" step="1">
+            <p>Pay <span id="s-amount">5</span> MATIC (<span id="s-rate"></span>% win probability)</p>
+            <button type="button" class = "button" onclick="playS()">Play</button>
+        </div>
+
+        <h2>M (Win 100 MATIC)</h2>
+        <div class = "play-type">
+            <input id="m-slider" class="slider" type="range" min="1" max="95" step="1">
+            <p>Pay <span id="m-amount">5</span> MATIC (<span id="m-rate"></span>% win probability)</p>
+            <button type="button" class = "button"  onclick="playM()">Play</button>
+        </div>
+
+        <h2>L (Win 250 MATIC)</h2>
+        <div class = "play-type">
+            <input id="l-slider" class="slider" type="range" min="1" max="240" step="1">
+            <p>Pay <span id="l-amount">5</span> MATIC (<span id="l-rate"></span>% win probability)</p>
+            <button type="button" class = "button"  onclick="playL()">Play</button>
+        </div>
+
+        <h2>X (Win 1000 MATIC)</h2>
+        <div class = "play-type">
+            <input id="x-slider" class="slider" type="range" min="1" max="950" step="1">
+            <p>Pay <span id="x-amount">5</span> MATIC (<span id="x-rate"></span>% win probability)</p>
+            <button type="button" class = "button" onclick="playX()">Play</button>
+        </div>
+    </div>
+
+    <h2>5 Latest winners</h2>
+    <table id="winner-table">
+        <tr>
+            <th>Address</th>
+            <th>Amount</th>
+            <th>Time</th>
+        </tr>
+    </table>
+
+    <footer class = "footer">© 2023  T.F.A.N.C.S.</footer>
+
+    <script>
+
+    hideOverlay()
+    if (typeof window.ethereum !== 'undefined') {
+        showConnectButton();
+        const web3 = new Web3(window.ethereum);
+        const contractAddress = '0xdD6e9d0150338e78fcEeD41BEBb88dDC90C26172';
+        const abi = [
+	{
+		"inputs": [],
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"inputs": [],
+		"name": "getWinners",
+		"outputs": [
+			{
+				"components": [
+					{
+						"internalType": "address",
+						"name": "_address",
+						"type": "address"
+					},
+					{
+						"internalType": "uint256",
+						"name": "amount",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "time",
+						"type": "uint256"
+					}
+				],
+				"internalType": "struct Lottery.Winner[5]",
+				"name": "",
+				"type": "tuple[5]"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "playL",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "playM",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "playS",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "playX",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "payable",
+		"type": "function"
+	}
+];
+        var contract = new web3.eth.Contract(abi, contractAddress); 
+    } else {
+        console.log('MetaMask is not installed');
+        showOverlay();
+    }
+
+    const sSlider = document.getElementById('s-slider');
+    const sAmount = document.getElementById('s-amount');
+    const sRate = document.getElementById('s-rate');
+
+    const mSlider = document.getElementById('m-slider');
+    const mAmount = document.getElementById('m-amount');
+    const mRate = document.getElementById('m-rate');
+
+    const lSlider = document.getElementById('l-slider');
+    const lAmount = document.getElementById('l-amount');
+    const lRate = document.getElementById('l-rate');
+
+    const xSlider = document.getElementById('x-slider');
+    const xAmount = document.getElementById('x-amount');
+    const xRate = document.getElementById('x-rate');
+      
+    let accounts = [];
+
+    const sSliderUpdate = () => {
+        sAmount.innerHTML = sSlider.value;
+        sRate.innerHTML = Math.ceil((sSlider.value / 26.0) * 100.0);
+    }
+
+    const mSliderUpdate = () => {
+        mAmount.innerHTML = mSlider.value;
+        mRate.innerHTML = Math.ceil((mSlider.value / 102.0) * 100.0);
+    }
+
+    const lSliderUpdate = () => {
+        lAmount.innerHTML = lSlider.value;
+        lRate.innerHTML = Math.ceil((lSlider.value / 260.0) * 100.0);
+    }
+
+    const xSliderUpdate = () => {
+        xAmount.innerHTML = xSlider.value;
+        xRate.innerHTML = Math.ceil((xSlider.value / 1050.0) * 100.0);
+    }
+
+
+
+    window.onload = () => {
+        sSlider.addEventListener('input', () => {
+            sSliderUpdate();
+        });
+        sSliderUpdate();
+
+        mSlider.addEventListener('input', () => {
+            mSliderUpdate();
+        });
+        mSliderUpdate();
+
+        lSlider.addEventListener('input', () => {
+            lSliderUpdate();
+        });
+        lSliderUpdate();
+
+        xSlider.addEventListener('input', () => {
+            xSliderUpdate();
+        });
+        xSliderUpdate();
+
+
+        document.body.className = "fade-in";
+
+    }
+
+
+    async function getWinners() {
+        //await contract.methods.getWinners().send({from: accounts[0]});
+        const result = await contract.methods.getWinners().call({from: accounts[0]});
+        const table = document.getElementById("winner-table");
+        console.log(result);
+
+        for(let i = 0; i<5; i++){
+            if(result[i][1] > 0){
+                const newRow = table.insertRow();
+                const cellAddress = newRow.insertCell();
+                cellAddress.innerHTML = "<a href='https://polygonscan.com/address/" + result[0][0] + "'>" + result[0][0] + "</a>";
+                const cellAmount = newRow.insertCell();
+                cellAmount.innerHTML = result[i][1] + " MATIC";
+                const cellTime = newRow.insertCell();
+                cellTime.innerHTML = new Date(result[i][2] * 1000).toLocaleString();
+            }else{
+                const newRow = table.insertRow();
+                const cellAddress = newRow.insertCell();
+                cellAddress.innerHTML = "N/A";
+                const cellAmount = newRow.insertCell();
+                cellAmount.innerHTML =  "- MATIC";
+                const cellTime = newRow.insertCell();
+                cellTime.innerHTML =  "-";
+            }
+        }
+    }
+
+    async function playS() {
+        const result = await contract.methods.playS().send({from: accounts[0], value: '0x' + (BigInt(sSlider.value)*1000000000000000000n).toString(16)});
+        console.log(result);
+        if(result){
+            showWin();
+            document.getElementById("win-amount").innerHTML = "25 MATIC";
+        }else{
+            showLose()
+        }
+    }
+    async function playM() {
+        const result =  await contract.methods.playM().send({from: accounts[0], value: '0x' + (BigInt(mSlider.value)*1000000000000000000n).toString(16)});
+    }
+    async function playL() {
+        const result =  await contract.methods.playL().send({from: accounts[0], value: '0x' + (BigInt(lSlider.value)*1000000000000000000n).toString(16)});
+    }
+    async function playX() {
+        const result = await contract.methods.playX().send({from: accounts[0], value: '0x' + (BigInt(xSlider.value)*1000000000000000000n).toString(16)});
+    }
+
+
+    async function getAccount() {
+        accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        hideOverlay();
+        getWinners();
+    }
+
+    function showOverlay() {
+        document.getElementById("overlay").style.display = "block";
+    }
+
+    function hideOverlay() {
+        document.getElementById("overlay").style.display = "none";
+        document.getElementById("connect-box").style.display = "none";
+    }
+
+    function showConnectButton(){
+        document.getElementById("overlay").style.display = "block";
+        document.getElementById("no-metamask").style.display = "none";
+        document.getElementById("connect-box").style.display = "block";
+    }
+
+      
+    </script>
+
+  </body>
+</html>
