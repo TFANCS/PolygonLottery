@@ -280,13 +280,6 @@
 
     async function playS() {
         const result = await contract.methods.playS().send({from: accounts[0], value: '0x' + (BigInt(sSlider.value)*1000000000000000000n).toString(16)});
-        console.log(result);
-        if(result){
-            showWin();
-            document.getElementById("win-amount").innerHTML = "25 MATIC";
-        }else{
-            showLose()
-        }
     }
     async function playM() {
         const result =  await contract.methods.playM().send({from: accounts[0], value: '0x' + (BigInt(mSlider.value)*1000000000000000000n).toString(16)});
