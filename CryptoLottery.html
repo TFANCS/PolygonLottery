@@ -252,7 +252,6 @@
 
 
     async function getWinners() {
-        //await contract.methods.getWinners().send({from: accounts[0]});
         const result = await contract.methods.getWinners().call({from: accounts[0]});
         const table = document.getElementById("winner-table");
         console.log(result);
@@ -261,7 +260,7 @@
             if(result[i][1] > 0){
                 const newRow = table.insertRow();
                 const cellAddress = newRow.insertCell();
-                cellAddress.innerHTML = "<a href='https://polygonscan.com/address/" + result[0][0] + "'>" + result[0][0] + "</a>";
+                cellAddress.innerHTML = "<a href='https://polygonscan.com/address/" + result[i][0] + "'>" + result[i][0] + "</a>";
                 const cellAmount = newRow.insertCell();
                 cellAmount.innerHTML = result[i][1] + " MATIC";
                 const cellTime = newRow.insertCell();
