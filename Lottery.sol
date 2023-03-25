@@ -84,7 +84,7 @@ contract Lottery {
     function setWinners(uint amount) internal {
         payable(msg.sender).transfer(amount);
         payable(owner).transfer(address(this).balance);
-        for(uint i = 0; i < 4; i++){
+        for(uint i = 4; i >= 0; i--){
                 winners[i+1] = winners[i];
         }
         Winner memory newWinner;
